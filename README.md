@@ -1,10 +1,33 @@
 # TaskFlow API
 
+🔗 **[Live API](https://taskflow-api-uies.onrender.com)** · [GitHub](https://github.com/MOHAMMADSHADULLA/taskflow-api)
+
+> Deployed on Render's free tier — the web service may sleep after 15 minutes of inactivity (first request afterward can take 30-60 seconds), and the free Postgres database expires after 30 days.
+
 A JWT-authenticated REST API for managing projects and tasks, built with
 Node.js + Express. Written as a production-style backend rather than a
 tutorial project: token rotation, ownership-based authorization, rate
 limiting, centralized error handling, structured logging, and a real
 test suite are all in place, not bolted on.
+
+This is a **pure backend API with no visual frontend** — it's meant to be
+called by a client (a frontend app, mobile app, or a tool like Postman/curl),
+not browsed. See "Try it live" below for a copy-pasteable way to test it.
+
+## Try it live
+
+```bash
+# 1. Create an account
+curl -X POST https://taskflow-api-uies.onrender.com/api/auth/signup \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"yourpassword123","name":"Your Name"}'
+
+# 2. Use the accessToken from the response above to create a project
+curl -X POST https://taskflow-api-uies.onrender.com/api/projects \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"My First Project","description":"Testing the API"}'
+```
 
 ## Why it's built this way
 
@@ -45,6 +68,7 @@ tests/            25 Jest + Supertest tests
 Dockerfile
 docker-compose.yml   # API + real Postgres, for local dev
 ```
+
 
 ## API overview
 
@@ -89,13 +113,13 @@ services required.
 ## Deploying to AWS (ECS Fargate)
 
 1. **Push the image to ECR**
-   ```bash
+```bash
    aws ecr create-repository --repository-name taskflow-api
    docker build -t taskflow-api .
    docker tag taskflow-api:latest <account-id>.dkr.ecr.<region>.amazonaws.com/taskflow-api:latest
    aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
    docker push <account-id>.dkr.ecr.<region>.amazonaws.com/taskflow-api:latest
-   ```
+```
 
 2. **Provision Postgres** — Amazon RDS (Postgres, smallest instance is fine
    for a demo) in the same VPC as your ECS service. Note the connection
@@ -114,12 +138,9 @@ services required.
 5. **Point a domain at the ALB** (Route 53 + ACM for TLS) if you want a
    real URL to put on your resume/LinkedIn instead of the raw ALB DNS name.
 
-Simpler alternative for a portfolio demo: run the same Docker image on a
-single EC2 instance behind an ALB, or skip AWS entirely for the always-on
-demo and use Render/Railway (point at the Dockerfile, add a managed
-Postgres add-on, set the same env vars) — then do a one-time AWS Fargate
-deploy you can screenshot/document for the resume line, if the cost of
-keeping it always-on isn't worth it for a demo project.
+This project is currently deployed on **Render** (see the live link above)
+as a faster, free alternative for demo purposes — the AWS steps above are
+included since the project was designed with AWS deployment in mind.
 
 ## Possible extensions
 
