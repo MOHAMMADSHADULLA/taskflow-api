@@ -20,6 +20,14 @@ app.use(express.json());
 app.use(pinoHttp({ logger }));
 app.use(apiLimiter);
 
+app.get('/', (req, res) => {
+  res.json({
+    name: 'TaskFlow API',
+    status: 'running',
+    message: 'TaskFlow backend API is running',
+  });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime() });
 });
